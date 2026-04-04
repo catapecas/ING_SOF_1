@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Entrenador</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+<div class="app-container">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">🏋️</div>
+      <div class="sidebar-title">
+        <h2>Entrenador</h2>
+        <span>Panel</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="nav-item active" data-section="dashboard" onclick="showSection('dashboard')">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Dashboard</span>
+      </div>
+
+      <div class="nav-item" data-section="deportistas" onclick="showSection('deportistas')">
+        <span class="nav-icon">🏃</span>
+        <span class="nav-label">Deportistas</span>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar" id="userAvatar"></div>
+        <div class="user-info">
+          <div id="userName"></div>
+          <div id="userRole"></div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <div class="topbar">
+      <h1 id="pageTitle">Dashboard</h1>
+    </div>
+
+    <div class="content-area">
+
+      <!-- DASHBOARD -->
+      <div id="dashboard" class="content-section active">
+        <div class="stats-grid" id="statsEntrenador"></div>
+      </div>
+
+      <!-- LISTA DEPORTISTAS -->
+      <div id="deportistas" class="content-section">
+        <div class="athletes-grid" id="listaDeportistas"></div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<script src="script.js"></script>
+
+<script>
+const user = checkAuth('entrenador');
+renderUserInfo(user);
+setupAutoLogout();
+
+const misDeportistas = DB.deportistas.filter(d => d.entrenadorId === user.id);
+
+// KPIs
+document.getElementById('statsEntrenador').innerHTML = `
+  <div class="stat-card">
+    <div class="stat-body">
+      <div class="stat-value">${misDeportistas.length}</div>
+      <div class="stat-label">Deportistas</div>
+    </div>
+  </div>
+`;
+
+// LISTA
+const cont = document.getElementById('listaDeportistas');
+
+misDeportistas.forEach(dep => {
+  cont.innerHTML += `
+    <div class="athlete-card">
+      <div class="athlete-avatar" style="background:${dep.color}">
+        ${dep.avatar}
+      </div>
+      <div class="athlete-info">
+        <h4>${dep.nombre}</h4>
+        <div class="athlete-id">${dep.deporte}</div>
+      </div>
+    </div>
+  `;
+});
+</script>
+
+</body>
+</html>

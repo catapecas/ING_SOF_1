@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema Deportivo Valle del Cauca — Iniciar Sesión</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="login-bg">
+
+  <div class="login-card">
+
+    <!-- Branding -->
+    <div class="login-brand">
+      <div class="login-logo">🏆</div>
+      <h1>Sistema Deportivo<br>Valle del Cauca</h1>
+      <p>Plataforma de Gestión Deportiva</p>
+    </div>
+
+    <!-- ── PANTALLA 1: LOGIN ──────────────────────────────── -->
+    <div id="screen-login" class="login-screen active">
+      <p class="screen-title">Iniciar Sesión</p>
+      <p class="screen-subtitle">Ingresa tus credenciales para continuar.</p>
+
+      <!-- Credenciales de demo -->
+      <div class="demo-box">
+        <strong>🔑 Credenciales de demostración</strong>
+        <div style="display:grid;gap:4px">
+          <div>🧑‍💼 Admin: <code>admin@vallecauca.gov.co</code> / <code>admin123</code></div>
+          <div>🏋️ Entrenador: <code>entrenador@vallecauca.gov.co</code> / <code>coach123</code></div>
+          <div>🏃 Deportista: <code>juan@vallecauca.gov.co</code> / <code>dep123</code></div>
+        </div>
+      </div>
+
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label for="loginEmail">Correo Electrónico</label>
+          <input id="loginEmail" type="email" class="form-control" placeholder="correo@ejemplo.com" autocomplete="email" required />
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Contraseña</label>
+          <input id="loginPassword" type="password" class="form-control" placeholder="••••••••" autocomplete="current-password" required />
+          <div id="loginError" style="display:none;color:#C62828;font-size:.82rem;margin-top:6px"></div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full btn-lg" id="loginBtn">Ingresar</button>
+      </form>
+
+      <div style="text-align:center;margin-top:16px">
+        <button class="link-btn" onclick="showRecovery()">¿Olvidé mi contraseña?</button>
+      </div>
+    </div>
+
+    <!-- ── PANTALLA 2: RECUPERAR CONTRASEÑA ──────────────── -->
+    <div id="screen-recover" class="login-screen">
+      <div class="recovery-icon mail">📧</div>
+      <p class="screen-title" style="text-align:center">Recuperar Contraseña</p>
+      <p class="screen-subtitle" style="text-align:center">Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.</p>
+
+      <div class="form-group">
+        <label for="recoverEmail">Correo Electrónico</label>
+        <input id="recoverEmail" type="email" class="form-control" placeholder="correo@ejemplo.com" />
+        <div id="recoverError" style="display:none;color:#C62828;font-size:.82rem;margin-top:6px"></div>
+      </div>
+
+      <button class="btn btn-primary btn-full" onclick="sendRecovery()">Enviar Enlace</button>
+      <button class="btn btn-secondary btn-full mt-3" onclick="backToLogin()">Volver al Inicio de Sesión</button>
+    </div>
+
+    <!-- ── PANTALLA 3: CONFIRMACIÓN ───────────────────────── -->
+    <div id="screen-confirm" class="login-screen">
+      <div class="recovery-icon check">✅</div>
+      <p class="screen-title" style="text-align:center">¡Correo Enviado!</p>
+      <p class="screen-subtitle" style="text-align:center">Hemos enviado un enlace temporal a <strong id="sentEmail"></strong>. Por favor revisa tu bandeja de entrada.</p>
+
+      <div style="background:#FFFDE7;border:1px solid #FFF59D;border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:.83rem;color:#F57F17">
+        ⏰ <strong>Nota:</strong> El enlace expirará en 1 hora por seguridad.
+      </div>
+
+      <button class="btn btn-primary btn-full" onclick="backToLogin()">Volver al Inicio de Sesión</button>
+    </div>
+
+  </div><!-- /login-card -->
+
+  <script src="script.js"></script>
+  <script>
+    // ─ Formulario de login ──────────────────────────────────
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email    = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const errEl    = document.getElementById('loginError');
+      const btn      = document.getElementById('loginBtn');
+
+      btn.textContent = 'Ingresando...';
+      btn.disabled = true;
+
+      setTimeout(() => {
+        const user = login(email, password);
+        if (!user) {
+          errEl.textContent = '❌ Correo o contraseña incorrectos. Verifica tus datos.';
+          errEl.style.display = 'block';
+          btn.textContent = 'Ingresar';
+          btn.disabled = false;
+          return;
+        }
+        errEl.style.display = 'none';
+        // Redirigir según rol
+        const routes = { admin: 'admin.html', entrenador: 'entrenador.html', deportista: 'deportista.html' };
+        window.location.href = routes[user.rol] || 'index.html';
+      }, 600);
+    });
+
+    // Limpiar error al escribir
+    ['loginEmail','loginPassword'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        document.getElementById('loginError').style.display = 'none';
+      });
+    });
+
+    // ─ Flujo recuperar contraseña ───────────────────────────
+    function showScreen(id) {
+      document.querySelectorAll('.login-screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+    function showRecovery() { showScreen('screen-recover'); }
+    function backToLogin()  { showScreen('screen-login'); }
+
+    function sendRecovery() {
+      const emailInput = document.getElementById('recoverEmail');
+      const errEl = document.getElementById('recoverError');
+      const email = emailInput.value.trim();
+
+      if (!email || !email.includes('@')) {
+        errEl.textContent = 'Por favor ingresa un correo válido.';
+        errEl.style.display = 'block';
+        return;
+      }
+      // Verificar si el correo existe en la DB (simulado)
+      const exists = DB.usuarios.some(u => u.email === email);
+      if (!exists) {
+        errEl.textContent = '❌ Este correo no está registrado en el sistema.';
+        errEl.style.display = 'block';
+        return;
+      }
+      errEl.style.display = 'none';
+      document.getElementById('sentEmail').textContent = email;
+      showScreen('screen-confirm');
+    }
+
+    // Si ya hay sesión activa, redirigir
+    const existing = getSession();
+    if (existing) {
+      const routes = { admin: 'admin.html', entrenador: 'entrenador.html', deportista: 'deportista.html' };
+      window.location.href = routes[existing.rol] || 'index.html';
+    }
+  </script>
+</body>
+</html>

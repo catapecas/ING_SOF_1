@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mi Rendimiento</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+<div class="app-container">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">🏃</div>
+      <div class="sidebar-title">
+        <h2>Deportista</h2>
+        <span>Panel</span>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar" id="userAvatar"></div>
+        <div class="user-info">
+          <div id="userName"></div>
+          <div id="userRole"></div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <div class="topbar">
+      <h1>Mi Rendimiento</h1>
+    </div>
+
+    <div class="content-area">
+
+      <!-- KPIs -->
+      <div class="kpi-bar" id="kpis"></div>
+
+      <!-- PROGRESO -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Progreso</div>
+        </div>
+        <div class="card-body" id="progreso"></div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<script src="script.js"></script>
+
+<script>
+const user = checkAuth('deportista');
+renderUserInfo(user);
+setupAutoLogout();
+
+const data = getMetricasDeportista(user.deportistaId);
+
+// KPIs
+document.getElementById('kpis').innerHTML = `
+  <div class="kpi-card kpi-blue">
+    <div class="kpi-value">${data.velocidad}</div>
+    <div class="kpi-label">Velocidad</div>
+  </div>
+  <div class="kpi-card kpi-green">
+    <div class="kpi-value">${data.fuerza}</div>
+    <div class="kpi-label">Fuerza</div>
+  </div>
+  <div class="kpi-card kpi-orange">
+    <div class="kpi-value">${data.resistencia}</div>
+    <div class="kpi-label">Resistencia</div>
+  </div>
+`;
+
+// PROGRESO
+document.getElementById('progreso').innerHTML = `
+  <div class="progress-row">
+    <div class="progress-label">Progreso</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" style="width:${data.progreso}%; background:green"></div>
+    </div>
+    <div class="progress-val">${data.progreso}%</div>
+  </div>
+`;
+</script>
+
+</body>
+</html>
